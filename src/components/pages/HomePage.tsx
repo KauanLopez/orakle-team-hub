@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -79,7 +78,8 @@ export const HomePage: React.FC = () => {
 
       {/* Carrossel de Anúncios */}
       <Card className="overflow-hidden shadow-lg bg-white/80 backdrop-blur-sm">
-        <CardHeader className="pb-0">
+        {/* MUDANÇA 1: Adicionado espaçamento inferior (pb-4) ao cabeçalho */}
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">Avisos Importantes</CardTitle>
             {canManage && (
@@ -93,7 +93,8 @@ export const HomePage: React.FC = () => {
         <CardContent className="p-0">
           {announcements.length > 0 ? (
             <div className="relative">
-              <div className="aspect-video bg-gradient-to-r from-blue-500 to-indigo-600 text-white relative overflow-hidden">
+              {/* MUDANÇA 2: Limitada a altura máxima em telas grandes (lg) */}
+              <div className="aspect-video lg:aspect-auto lg:h-[450px] bg-gradient-to-r from-blue-500 to-indigo-600 text-white relative overflow-hidden">
                 <img
                   src={announcements[currentSlide]?.image}
                   alt={announcements[currentSlide]?.title}
