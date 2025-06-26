@@ -1,3 +1,4 @@
+// kauanlopez/orakle-team-hub/orakle-team-hub-b7bba0072f353722285dae4c4c15f7429fc7a5a4/src/components/Sidebar.tsx
 import React from 'react';
 import { 
   Home, 
@@ -9,7 +10,9 @@ import {
   Gift, 
   Gamepad2, 
   User, 
-  MessageCircle
+  MessageCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '../hooks/useAuth';
@@ -49,24 +52,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <div 
-        className={`
-          flex-shrink-0 bg-white/90 backdrop-blur-sm border-r border-slate-200 shadow-lg 
-          transition-all duration-300 ease-in-out
-          lg:relative lg:translate-x-0
-          fixed inset-y-0 left-0 z-50 
-          ${isOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full lg:w-20'}
-        `}
+        className={`${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        } fixed inset-y-0 left-0 z-50 w-64 bg-white/90 backdrop-blur-sm border-r border-slate-200 shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0`}
       >
-        <div className="flex flex-col h-full overflow-hidden">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-lg font-bold">O</span>
+        <div className="flex flex-col h-full">
+          <div className="p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">O</span>
+                </div>
+                {/* Sempre mostrar o texto em telas grandes */}
+                <div className="hidden lg:block">
+                  <h2 className="font-semibold text-slate-800">Menu</h2>
+                  <p className="text-sm text-slate-600">{user?.team}</p>
+                </div>
+                {/* Mostrar o texto em mobile apenas se estiver aberto */}
+                {isOpen && (
+                  <div className="lg:hidden">
+                    <h2 className="font-semibold text-slate-800">Menu</h2>
+                    <p className="text-sm text-slate-600">{user?.team}</p>
+                  </div>
+                )}
               </div>
-              <div className={`transition-opacity duration-200 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-                <h2 className="font-semibold text-slate-800 whitespace-nowrap">Orakle</h2>
-                <p className="text-sm text-slate-600 whitespace-nowrap">{user?.team}</p>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden"
+              >
+                {isOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
 
@@ -78,37 +95,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <Button
                   key={item.id}
                   variant={isActive ? "default" : "ghost"}
-                  className={`w-full h-12 flex items-center transition-colors ${
-                    isOpen ? 'justify-start' : 'justify-center'
-                  } ${
+                  className={`w-full justify-start h-12 ${
                     isActive 
                       ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg' 
                       : 'text-slate-700 hover:bg-slate-100'
                   }`}
                   onClick={() => setCurrentPage(item.id)}
-                  title={isOpen ? '' : item.label} // Tooltip for collapsed state
                 >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <span className={`transition-all duration-200 whitespace-nowrap ${isOpen ? 'ml-3 opacity-100' : 'w-0 opacity-0'}`}>
-                    {item.label}
-                  </span>
+                  <Icon className="h-5 w-5 mr-3" />
+                  <span className="font-medium">{item.label}</span>
                 </Button>
               );
             })}
           </nav>
 
-          <div className={`transition-opacity duration-200 border-t border-slate-200 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
-            {isOpen && (
-              <div className="p-4">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
-                  <div className="text-sm font-medium text-slate-800 truncate">{user?.name}</div>
-                  <div className="text-xs text-slate-600 mt-1 truncate">{user?.position}</div>
-                  <div className="text-xs text-blue-600 font-medium mt-2">
-                    {user?.points} pontos
-                  </div>
-                </div>
+          <div className="p-4 border-t border-slate-200">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
+              <div className="text-sm font-medium text-slate-800">{user?.name}</div>
+              <div className="text-xs text-slate-600 mt-1">{user?.position}</div>
+              <div className="text-xs text-blue-600 font-medium mt-2">
+                {user?.points} pontos
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
