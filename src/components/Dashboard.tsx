@@ -14,8 +14,7 @@ import { SupportPage } from './pages/SupportPage';
 
 export const Dashboard: React.FC = () => {
   const [currentPage, setCurrentPage] = useState('home');
-  // Iniciar a sidebar fechada em telas grandes por padrão para melhor visualização inicial
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth > 1024);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -34,23 +33,24 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-slate-50">
+    // O container principal permanece o mesmo
+    <div className="flex h-screen bg-slate-50">
       <Sidebar 
         currentPage={currentPage} 
         setCurrentPage={setCurrentPage}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
       />
-
-      {/* ÁREA DE CONTEÚDO PRINCIPAL */}
-      {/* A mágica acontece aqui: ajustamos a margem esquerda (ml) em telas grandes (lg) */}
-      <div 
-        className={`
-          flex flex-col flex-1 transition-all duration-300 ease-in-out
-          lg:ml-20  // Margem padrão para sidebar recolhida
-          ${sidebarOpen && 'lg:ml-64'} // Margem quando a sidebar está aberta
-        `}
-      >
+      {/* A MUDANÇA ESTÁ AQUI: 
+        Este container agora é posicionado de forma absoluta em telas grandes
+        para que possamos controlar sua margem esquerda precisamente.
+      */}
+      <div className={`
+        flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out
+        lg:absolute lg:top-0 lg:bottom-0 
+        ${sidebarOpen ? 'lg:left-64' : 'lg:left-20'} 
+        lg:right-0
+      `}>
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
           {renderPage()}
