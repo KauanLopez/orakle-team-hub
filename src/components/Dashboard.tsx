@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
@@ -34,6 +33,7 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
+    // O container principal permanece o mesmo
     <div className="flex h-screen bg-slate-50">
       <Sidebar 
         currentPage={currentPage} 
@@ -41,7 +41,16 @@ export const Dashboard: React.FC = () => {
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
       />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* A MUDANÇA ESTÁ AQUI: 
+        Este container agora é posicionado de forma absoluta em telas grandes
+        para que possamos controlar sua margem esquerda precisamente.
+      */}
+      <div className={`
+        flex-1 flex flex-col overflow-hidden transition-all duration-300 ease-in-out
+        lg:absolute lg:top-0 lg:bottom-0 
+        ${sidebarOpen ? 'lg:left-64' : 'lg:left-20'} 
+        lg:right-0
+      `}>
         <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
           {renderPage()}
