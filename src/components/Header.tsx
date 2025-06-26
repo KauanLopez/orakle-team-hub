@@ -1,4 +1,4 @@
-
+// kauanlopez/orakle-team-hub/orakle-team-hub-b7bba0072f353722285dae4c4c15f7429fc7a5a4/src/components/Header.tsx
 import React, { useState, useEffect } from 'react';
 import { Bell, Menu, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,12 +26,10 @@ export const Header: React.FC<{ toggleSidebar: () => void }> = ({ toggleSidebar 
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    // Load notifications from localStorage
     const savedNotifications = localStorage.getItem('orakle_notifications');
     if (savedNotifications) {
       setNotifications(JSON.parse(savedNotifications));
     } else {
-      // Initialize with mock notifications
       const mockNotifications: Notification[] = [
         {
           id: '1',
@@ -75,7 +73,8 @@ export const Header: React.FC<{ toggleSidebar: () => void }> = ({ toggleSidebar 
     <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={toggleSidebar}>
+          {/* A MUDANÇA ESTÁ AQUI */}
+          <Button variant="ghost" size="sm" onClick={toggleSidebar} className="lg:hidden">
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex items-center space-x-3">
