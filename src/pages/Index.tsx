@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from '../components/LoginPage';
 import { Dashboard } from '../components/Dashboard';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useFirebaseAuth';
 
 const Index = () => {
   const { user } = useAuth();

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
 import { ChatInterface } from '../support/ChatInterface';
 import { KnowledgeManagement } from '../support/KnowledgeManagement';
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send } from 'lucide-react';
 import { ChatMessage } from './ChatMessage';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatInterfaceProps {

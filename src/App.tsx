@@ -1,3 +1,4 @@
+
 import React from 'react'
 import {
   BrowserRouter as Router,
@@ -14,7 +15,7 @@ import { SupportPage } from './components/pages/SupportPage';
 import { RequestsPage } from './components/pages/RequestsPage';
 import { GamesPage } from './components/pages/GamesPage';
 import { LoginPage } from './components/LoginPage';
-import { AuthProvider } from './hooks/useFirebaseAuth';
+import { AuthProvider, useAuth } from './hooks/useFirebaseAuth';
 import { useInitializeData } from './hooks/useInitializeData';
 
 function App() {

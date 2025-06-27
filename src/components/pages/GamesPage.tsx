@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Gamepad2, Plus, Play, Star, BarChart, Clock } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
 import { useToast } from '@/hooks/use-toast';
 
 export const GamesPage: React.FC = () => {

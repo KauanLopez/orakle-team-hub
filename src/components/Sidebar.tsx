@@ -14,7 +14,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useFirebaseAuth';
 
 interface SidebarProps {
   currentPage: string;

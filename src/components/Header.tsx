@@ -1,4 +1,3 @@
-// kauanlopez/orakle-team-hub/orakle-team-hub-b7bba0072f353722285dae4c4c15f7429fc7a5a4/src/components/Header.tsx
 import React, { useState, useEffect } from 'react';
 import { Bell, Menu, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/useFirebaseAuth';
 
 interface Notification {
   id: string;
