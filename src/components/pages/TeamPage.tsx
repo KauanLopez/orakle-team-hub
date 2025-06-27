@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Users, Edit, Trash2, Plus, Award } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
 
 export const TeamPage: React.FC = () => {
   const { user } = useAuth();
@@ -142,7 +141,7 @@ export const TeamPage: React.FC = () => {
 
                 <div className="flex items-center space-x-4">
                   <Badge variant="outline" className="text-blue-600">
-                    {member.points} pontos
+                    {member.points}
                   </Badge>
                   <div className="flex space-x-2">
                     <Button
