@@ -1,27 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User, Star, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
+import { useFirestore } from '../../hooks/useFirestore';
 
 export const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
-  const [pointsHistory, setPointsHistory] = useState<any[]>([]);
+  const { user, loading } = useAuth();
+  const { data: pointsHistoryData, getByUser } = useFirestore('pointsHistory');
 
-  useEffect(() => {
-    if (user) {
-      loadPointsHistory();
-    }
-  }, [user]);
-
-  const loadPointsHistory = () => {
-    const history = JSON.parse(localStorage.getItem('orakle_points_history') || '[]');
-    const userHistory = history.filter((h: any) => h.userId === user?.id);
-    // Sort by date, most recent first
-    userHistory.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    setPointsHistory(userHistory);
-  };
+  const pointsHistory = user ? getByUser(user.id).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -51,7 +39,7 @@ export const ProfilePage: React.FC = () => {
     .filter(h => h.type === 'spend')
     .reduce((sum, h) => sum + Math.abs(h.points), 0);
 
-  if (!user) {
+  if (loading || !user) {
     return <div className="text-center text-slate-600">Carregando...</div>;
   }
 

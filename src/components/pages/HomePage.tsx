@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, Edit } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/useFirebaseAuth';
+import { useFirestore } from '../../hooks/useFirestore';
 import { Badge } from '@/components/ui/badge';
 
 interface Announcement {
@@ -14,34 +16,12 @@ interface Announcement {
 }
 
 export const HomePage: React.FC = () => {
-  const { user } = useAuth();
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const { user, loading } = useAuth();
+  const { data: announcements } = useFirestore('announcements');
+  const { data: alignmentsData } = useFirestore('alignments');
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [alignments, setAlignments] = useState<string[]>([]);
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = () => {
-    const savedAnnouncements = localStorage.getItem('orakle_announcements');
-    if (savedAnnouncements) {
-      setAnnouncements(JSON.parse(savedAnnouncements));
-    }
-
-    const savedAlignments = localStorage.getItem('orakle_alignments');
-    if (savedAlignments) {
-      setAlignments(JSON.parse(savedAlignments));
-    } else {
-      const defaultAlignments = [
-        'Reunião de equipe toda segunda-feira às 9h',
-        'Metas do mês: Foco em qualidade e produtividade',
-        'Lembrete: Atualizar relatórios semanais até sexta-feira'
-      ];
-      setAlignments(defaultAlignments);
-      localStorage.setItem('orakle_alignments', JSON.stringify(defaultAlignments));
-    }
-  };
+  const alignments = alignmentsData.map(item => item.text);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % announcements.length);
@@ -59,6 +39,10 @@ export const HomePage: React.FC = () => {
   }, [announcements.length]);
 
   const canManage = user?.role === 'supervisor' || user?.role === 'administrador';
+
+  if (loading) {
+    return <div className="text-center text-slate-600">Carregando...</div>;
+  }
 
   return (
     <div className="space-y-6">
