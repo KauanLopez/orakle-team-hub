@@ -12,9 +12,10 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [isLogging, setIsLogging] = useState(false);
   const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email || !password || !role) {
@@ -26,13 +27,25 @@ export const LoginPage: React.FC = () => {
       return;
     }
 
-    const success = login(email, password, role);
-    if (!success) {
+    setIsLogging(true);
+    try {
+      const success = await login(email, password, role);
+      if (!success) {
+        toast({
+          title: "Erro de Autenticação",
+          description: "Credenciais inválidas para o nível de acesso selecionado",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Erro de Autenticação",
-        description: "Credenciais inválidas para o nível de acesso selecionado",
+        title: "Erro de Conexão",
+        description: "Não foi possível conectar ao servidor",
         variant: "destructive"
       });
+    } finally {
+      setIsLogging(false);
     }
   };
 
@@ -77,6 +90,7 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
                   className="bg-white/70 border-slate-200 focus:border-blue-400"
+                  disabled={isLogging}
                 />
               </div>
 
@@ -89,12 +103,13 @@ export const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••"
                   className="bg-white/70 border-slate-200 focus:border-blue-400"
+                  disabled={isLogging}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Nível de Acesso</Label>
-                <Select value={role} onValueChange={setRole}>
+                <Select value={role} onValueChange={setRole} disabled={isLogging}>
                   <SelectTrigger className="bg-white/70 border-slate-200">
                     <SelectValue placeholder="Selecione seu nível" />
                   </SelectTrigger>
@@ -106,8 +121,12 @@ export const LoginPage: React.FC = () => {
                 </Select>
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg">
-                Entrar
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-lg"
+                disabled={isLogging}
+              >
+                {isLogging ? 'Entrando...' : 'Entrar'}
               </Button>
             </form>
 
@@ -119,6 +138,7 @@ export const LoginPage: React.FC = () => {
                   size="sm"
                   onClick={() => quickLogin('colaborador')}
                   className="text-xs hover:bg-blue-50"
+                  disabled={isLogging}
                 >
                   Colaborador
                 </Button>
@@ -127,6 +147,7 @@ export const LoginPage: React.FC = () => {
                   size="sm"
                   onClick={() => quickLogin('supervisor')}
                   className="text-xs hover:bg-green-50"
+                  disabled={isLogging}
                 >
                   Supervisor
                 </Button>
@@ -135,6 +156,7 @@ export const LoginPage: React.FC = () => {
                   size="sm"
                   onClick={() => quickLogin('administrador')}
                   className="text-xs hover:bg-purple-50"
+                  disabled={isLogging}
                 >
                   Admin
                 </Button>
