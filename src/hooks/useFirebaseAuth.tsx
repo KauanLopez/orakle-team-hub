@@ -1,16 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { app, db } from '../lib/firebase'; // Import from our new firebase config
 
-// Interface para os dados do usuário do Orakle
-export interface User {
-  id: string; // Firebase UID
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { db } from '../lib/firebase';
+import { doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { toast } from '@/hooks/use-toast';
+
+interface User {
+  id: string;
   name: string;
   email: string;
   role: 'colaborador' | 'supervisor' | 'administrador';
@@ -18,95 +13,114 @@ export interface User {
   ficticiousName: string;
   position: string;
   points: number;
+  password: string;
 }
 
-// Interface para o contexto de autenticação
 interface AuthContextType {
   user: User | null;
-  loading: boolean; // Adicionado para gerenciar o estado de carregamento
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUserPoints: (newPoints: number) => Promise<void>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const auth = getAuth(app);
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Inicia como true para esperar a verificação inicial
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // onAuthStateChanged é um listener que observa mudanças no estado de login
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Se o usuário está logado no Firebase, buscamos seus dados no Firestore
-        const userDocRef = doc(db, 'users', firebaseUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          // Se o documento existe, montamos o objeto de usuário completo
-          const userData = userDoc.data() as Omit<User, 'id' | 'email'>;
-          setUser({ 
-            id: firebaseUser.uid,
-            email: firebaseUser.email!,
-            ...userData 
-          });
-        } else {
-          // Caso crítico: usuário autenticado mas sem dados no Firestore. Deslogar.
-          console.error("Usuário autenticado sem documento no Firestore. Deslogando.");
-          await signOut(auth);
-          setUser(null);
-        }
-      } else {
-        // Se não há usuário no Firebase, o estado é nulo
-        setUser(null);
-      }
-      // Finaliza o carregamento após a verificação
-      setLoading(false);
-    });
-
-    // Limpa o listener ao desmontar o componente para evitar vazamentos de memória
-    return () => unsubscribe();
+    // Check if user is logged in from localStorage
+    const savedUser = localStorage.getItem('orakle_current_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+    setLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, role: string): Promise<boolean> => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // O sucesso do login será capturado pelo listener onAuthStateChanged
+      setLoading(true);
+      
+      // Query users collection to find matching user
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email), where('role', '==', role));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        console.log('No user found with this email and role');
+        return false;
+      }
+      
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data() as User;
+      
+      // Check password
+      if (userData.password !== password) {
+        console.log('Invalid password');
+        return false;
+      }
+      
+      // Set user with document ID
+      const loggedUser = { ...userData, id: userDoc.id };
+      setUser(loggedUser);
+      localStorage.setItem('orakle_current_user', JSON.stringify(loggedUser));
+      
+      toast({
+        title: "Login realizado com sucesso!",
+        description: `Bem-vindo, ${loggedUser.name}!`,
+      });
+      
       return true;
     } catch (error) {
-      console.error("Erro de autenticação:", error);
+      console.error('Login error:', error);
+      toast({
+        title: "Erro no login",
+        description: "Não foi possível conectar ao servidor.",
+        variant: "destructive"
+      });
       return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
-      await signOut(auth);
       setUser(null);
+      localStorage.removeItem('orakle_current_user');
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso.",
+      });
     } catch (error) {
-      console.error("Erro ao fazer logout:", error);
+      console.error('Logout error:', error);
     }
   };
 
-  const updateUserPoints = async (newPoints: number) => {
+  const updateUserPoints = async (newPoints: number): Promise<void> => {
     if (user) {
-      const userDocRef = doc(db, 'users', user.id);
       try {
-        await updateDoc(userDocRef, { points: newPoints });
-        setUser((currentUser) => currentUser ? { ...currentUser, points: newPoints } : null);
+        await updateDoc(doc(db, 'users', user.id), {
+          points: newPoints
+        });
+        const updatedUser = { ...user, points: newPoints };
+        setUser(updatedUser);
+        localStorage.setItem('orakle_current_user', JSON.stringify(updatedUser));
       } catch (error) {
-        console.error("Erro ao atualizar pontos:", error);
+        console.error('Error updating user points:', error);
+        toast({
+          title: "Erro ao atualizar pontos",
+          description: "Não foi possível atualizar os pontos.",
+          variant: "destructive"
+        });
       }
     }
   };
-  
-  // O valor do provider agora inclui o estado de 'loading'
-  const value = { user, loading, login, logout, updateUserPoints };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, login, logout, updateUserPoints, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -114,8 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
